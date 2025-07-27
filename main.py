@@ -2,17 +2,13 @@ import pandas as pd
 from urllib.request import urlopen
 import json
 import matplotlib.pyplot as plt
+import streamlit as st
 
 import data_loader
 import data_process
 
 
 def main():
-    '''    
-    response = urlopen('https://api.openf1.org/v1/sessions?session_name=Race&year=2024')
-    data = json.loads(response.read().decode('utf-8'))
-    df = pd.DataFrame(data)
-    '''
     '''df = data_loader.get_race_list(2024)
     print(df)
     df = data_loader.get_sessions_year_list('Race', 2024)
@@ -40,9 +36,23 @@ def main():
     #pos =pd.merge(processed_lap, posdf, left_on=['meeting_key','date_start', 'driver_number'], right_on=['meeting_key','date','driver_number'], how='inner').sort_values('driver_number', ascending=True)
     #print(posdf.sort_values(''))
     #print(processed_lap.head(10))
-    print()
-    plt.show()
+    #print()
+    #plt.show()
 
+    # try streamlit to show rece list for each year.
+    st.set_page_config('F1 Dashboard')
+    st.title('F1 Data Dashboard')
+    st.write('F1 data dashboard landing page. Navigate to different pages via the sidebar to explore F1 data!')
+
+    main_page = st.Page("main.py", title='Home')
+    race_calendar_page = st.Page("race_calendar_page.py", title='Race Calendar')
+
+    pg = st.navigation([main_page, race_calendar_page])
+    pg.run()
+    '''year_select = [2023,2024,2025]
+    selected_year = st.selectbox('select year',year_select, index=len(year_select)-1)
+    race_list = data_loader.get_race_list(selected_year)
+    race_list'''
 
 
 if __name__ == "__main__":
