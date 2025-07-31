@@ -1,12 +1,16 @@
 import pandas as pd
 import requests
 import streamlit as st
+from dotenv import load_dotenv
+import os
 
 '''
     maybe good idea to pull as much as I can in each endpoint and then process it from there to reduce api calls for similar data
 '''
 
-BASE_URL = 'https://api.openf1.org/v1/'
+load_dotenv()
+
+BASE_URL = os.getenv('BASE_API_URL') #'https://api.openf1.org/v1/'
 
 def get_data(endpoint, params=None):
     """
