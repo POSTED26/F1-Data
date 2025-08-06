@@ -35,7 +35,7 @@ def get_data(endpoint, params=None):
 
 # use get_data to pull what we want
 
-def get_race_list(year):
+def get_race_list():
     """
     Args:
         year (int): F1 season year
@@ -43,7 +43,7 @@ def get_race_list(year):
     Return:
         pd.DataFrame: returns data fram of all races in year provided
     """
-    df = get_data("meetings", {'year':year})
+    df = get_data("meetings")
 
     if df.empty:
         print('No data for meetings selected')
@@ -52,9 +52,9 @@ def get_race_list(year):
     return df[['meeting_key','meeting_name','country_name', 'year']]
 
 
-def get_sessions_year_list(session_type, year):
+def get_sessions_year_list(session_type):
 
-    df = get_data('sessions', {'session_type': session_type, 'year':year})
+    df = get_data('sessions', {'session_type': session_type})
 
     if df.empty:
         print('No data for sessions list you selected')
@@ -74,9 +74,9 @@ def get_session(session_key):
     
     return df[['session_key', 'session_name', 'session_type', 'country_name', 'year']]
     
-def get_session_result(session_key, num_of_pos=20):
+def get_session_result(num_of_pos=20):
 
-    df = get_data('session_result', {'session_key':session_key, 'position<':num_of_pos})
+    df = get_data('session_result', {'position<':num_of_pos})
     if df.empty:
         print('No date for session result')
         return pd.DataFrame()
@@ -93,15 +93,15 @@ def get_driver(driver_number, session_key):
         return pd.DataFrame()
     return df[['driver_number', 'full_name', 'team_name']]
 
-def get_drivers(session_key):
+def get_drivers():
     """
         Get list of drivers from a session
     """
-    df = get_data('drivers', {'session_key': session_key})
+    df = get_data('drivers')
     if df.empty:
         print('No driver data for selected number')
         return pd.DataFrame()
-    return df[['driver_number', 'full_name', 'team_name']]
+    return df[['driver_number', 'full_name', 'country_code', 'team_name', 'meeting_key', 'session_key']]
 
 def get_laps(session_key):
     """

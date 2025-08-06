@@ -4,8 +4,13 @@ import json
 import matplotlib.pyplot as plt
 import streamlit as st
 
+
 import data_extracter
 import data_process
+import data_loader
+import db_connector
+
+
 
 """
     thinsgs to do
@@ -19,10 +24,48 @@ import data_process
 """
 
 def main():
-    '''df = data_loader.get_race_list(2024)
-    print(df)
-    df = data_loader.get_sessions_year_list('Race', 2024)
-    print(df)
+
+    
+
+    # extract data from api
+    #df = data_extracter.get_race_list()
+    #print(df)
+    #df = data_extracter.get_sessions_year_list('Race')
+
+    meeting_df = data_extracter.get_race_list()
+    sessions_df = data_extracter.get_sessions_year_list('Race')
+    driver_df = data_extracter.get_drivers()
+    pos_df = data_extracter.get_session_result()
+
+    # transform
+
+
+
+    driver_cummulative_df = driver_df.merge(sessions_df, how='inner', on=['session_key', 'meeting_key'])
+    driver_cummulative_df = driver_cummulative_df.merge(pos_df, how='inner', on=['session_key', 'driver_number'])
+    driver_cummulative_df = driver_cummulative_df.merge(meeting_df, how='inner', on=['meeting_key', 'country_name', 'year'])
+    #print(driver_cummulative_df.columns)
+    #merge in meeting table as well for meeting name for cumm driver table
+    #figure out to get one driver per row
+    #print(driver_cummulative_df.sort_values(by=['meeting_key', 'position']).head(40).reset_index(drop='True'))
+
+    # load
+    db = db_connector.DbConnector()
+    loader = data_loader.DbLoader()
+    db.connect()
+    #create tables
+    loader.create_table('meetings.sql', db)
+    loader.create_table('sessions.sql', db)
+    loader.create_table('drivers.sql', db)
+
+    # load the tables
+    # TODO: figure out how to load without sql alchemy or just use it
+    loader.load_table(meeting_df, 'meetings', db)
+    loader.load_table(sessions_df, 'sessions', db)
+    loader.load_table(driver_df, 'drivers', db)
+
+    db.disconnect()
+    '''
     sdf = data_loader.get_session(9617)
     print(sdf)
     #9617 2024 us gp race session
@@ -32,7 +75,7 @@ def main():
     print(drivdf)
     drvdf = data_loader.get_drivers(9617)
     topdf = sessdf.merge(drvdf, on='driver_number', how='left')
-    print(topdf)'''
+    print(topdf)
     lapdf = data_extracter.get_laps(9617)
     processed_lap = data_process.lap_process(lapdf)
     yuki_laps = processed_lap[processed_lap['driver_number'] == 20].copy()
@@ -47,22 +90,10 @@ def main():
     #print(posdf.sort_values(''))
     #print(processed_lap.head(10))
     #print()
-    plt.show()
+    #plt.show()
+    '''
 
-    # try streamlit to show rece list for each year.
-    '''st.set_page_config('F1 Dashboard')
-    st.title('F1 Data Dashboard')
-    st.write('F1 data dashboard landing page. Navigate to different pages via the sidebar to explore F1 data!')
 
-    main_page = st.Page("main.py", title='Home')
-    race_calendar_page = st.Page("race_calendar_page.py", title='Race Calendar')
-
-    pg = st.navigation([main_page, race_calendar_page])
-    pg.run()'''
-    '''year_select = [2023,2024,2025]
-    selected_year = st.selectbox('select year',year_select, index=len(year_select)-1)
-    race_list = data_loader.get_race_list(selected_year)
-    race_list'''
 
 
 if __name__ == "__main__":
