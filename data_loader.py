@@ -1,6 +1,7 @@
 import psycopg2
 import logging
 import pandas as pd
+from sqlalchemy import engine, text
 
 import db_connector as dbConn
 
@@ -24,12 +25,21 @@ class DbLoader():
             sql_file = f.read()
             logger.info(f'Reading SQL file: {sql}')
 
-        db.cur.execute(sql_file)
-        logger.info('Executed SQL file')
-        db.conn.commit()
-        logger.info('Commited changes to db')
+        with db.engine.connect() as conn:
+            conn.execute(text(sql_file))
+            logger.info('Executed SQL file')
+            conn.commit()
+            logger.info('Commited changes to db')
+        
+        #db.cur.execute(sql_file)
+        
+        #db.conn.commit()
+        
 
 
     def load_table(self, df: pd.DataFrame, table_name, db):
-        df.to_sql(table_name, db.conn, if_exists='replace', index='False')
-        logger.info(f'Loaded data into table {table_name}')
+        with db.engine.connect() as conn:
+            table_df = pd.read_sql_table(table_name, conn)
+            concat_df = pd.concat([table_df, df]).drop_duplicates(keep=False)
+            concat_df.to_sql(table_name, conn, if_exists='append', index=False)
+            logger.info(f'Loaded data into table {table_name}')

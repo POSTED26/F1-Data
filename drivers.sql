@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS drivers (
     team_name TEXT,
     meeting_key Integer,
     session_key Integer,
-    PRIMARY KEY(full_name, country_code)
+    PRIMARY KEY(full_name, country_code, meeting_key, session_key)
 );

@@ -35,6 +35,7 @@ def main():
     meeting_df = data_extracter.get_race_list()
     sessions_df = data_extracter.get_sessions_year_list('Race')
     driver_df = data_extracter.get_drivers()
+    driver_df = data_process.driver_process(driver_df)
     pos_df = data_extracter.get_session_result()
 
     # transform
@@ -57,14 +58,18 @@ def main():
     loader.create_table('meetings.sql', db)
     loader.create_table('sessions.sql', db)
     loader.create_table('drivers.sql', db)
-
+    
     # load the tables
     # TODO: figure out how to load without sql alchemy or just use it
+    '''
+        TODO: how to append only new data to tables when run subsequent times
+        TODO: maybe load table into a df and compare new pull with table df and then append only the new stuff
+    '''
     loader.load_table(meeting_df, 'meetings', db)
     loader.load_table(sessions_df, 'sessions', db)
     loader.load_table(driver_df, 'drivers', db)
 
-    db.disconnect()
+    #db.disconnect()
     '''
     sdf = data_loader.get_session(9617)
     print(sdf)
