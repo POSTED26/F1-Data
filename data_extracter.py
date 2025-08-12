@@ -4,9 +4,7 @@ import streamlit as st
 from dotenv import load_dotenv
 import os
 
-'''
-    maybe good idea to pull as much as I can in each endpoint and then process it from there to reduce api calls for similar data
-'''
+
 
 load_dotenv()
 

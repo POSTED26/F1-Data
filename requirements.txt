@@ -1,8 +1,5 @@
 pandas
-matplotlib
-numpy
 requests
-streamlit
 dotenv
 psycopg2
 SQLAlchemy

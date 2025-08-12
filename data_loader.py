@@ -31,9 +31,7 @@ class DbLoader():
             conn.commit()
             logger.info('Commited changes to db')
         
-        #db.cur.execute(sql_file)
-        
-        #db.conn.commit()
+
         
 
 
