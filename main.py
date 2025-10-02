@@ -54,11 +54,27 @@ def main():
 
 
 def testingspark():
+    # Create Spark session
     spark = SparkSession.builder \
-        .appName("TestSpark") \
+        .appName("SparkTest") \
+        .master("local[*]") \
         .getOrCreate()
 
-    print("Spark session started successfully.")
+    # Sample data
+    data = ["hello world", "hello spark", "spark is fast"]
+
+    # Create RDD
+    rdd = spark.sparkContext.parallelize(data)
+
+    # Word count
+    word_counts = rdd.flatMap(lambda line: line.split()) \
+                    .map(lambda word: (word, 1)) \
+                    .reduceByKey(lambda a, b: a + b)
+
+    # Print results
+    for word, count in word_counts.collect():
+        print(f"{word}: {count}")
+
     spark.stop()
 
 if __name__ == "__main__":
