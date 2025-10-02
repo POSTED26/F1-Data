@@ -1,4 +1,5 @@
 import pandas as pd
+from pyspark.sql import SparkSession
 from urllib.request import urlopen
 
 
@@ -52,9 +53,16 @@ def main():
     
 
 
+def testingspark():
+    spark = SparkSession.builder \
+        .appName("TestSpark") \
+        .getOrCreate()
 
+    print("Spark session started successfully.")
+    spark.stop()
 
 if __name__ == "__main__":
-    main()
+    #main()
+    testingspark()
 
 

@@ -205,3 +205,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# spark jar
+hadoop-aws-3.3.1.jar
+aws-java-sdk-bundle-1.11.901.jar
