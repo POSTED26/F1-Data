@@ -1,10 +1,13 @@
 import pandas as pd
 import requests
+from pyspark.sql import SparkSession
 
 from dotenv import load_dotenv
 import os
 
-
+'''
+    TODO: finish moving to pyspark dataframes
+'''
 
 load_dotenv()
 
@@ -19,16 +22,22 @@ def get_data(endpoint, params=None):
         params (dict): optional, drill down more specifics for getting data
 
     Rreturn:
-        pd.DataFrame: returns a data frame for easy clean and manipulation 
+        spark dataframe: returns a data frame for easy clean and manipulation 
+        spark session: returns spark session for further use
     """
     if params is None:
         params = {}
+
+    spark = SparkSession.builder.appName("pull_data").getOrCreate()
 
     url = f"{BASE_URL}{endpoint}"
     full_url = requests.Request('GET', url, params=params).prepare().url
     response = requests.get(full_url)
     response.raise_for_status()
-    return pd.DataFrame(response.json())
+    data = response.json()
+    spark = SparkSession.builder.appName("pull_data").getOrCreate()
+    df = spark.createDataFrame(data) 
+    return df, spark
 
 
 # use get_data to pull what we want
@@ -39,15 +48,19 @@ def get_race_list():
         year (int): F1 season year
     
     Return:
-        pd.DataFrame: returns data fram of all races in year provided
+        spark DataFrame: returns data fram of all races in year provided
     """
-    df = get_data("meetings")
+    spark_df, spark = get_data("meetings")
 
-    if df.empty:
-        print('No data for meetings selected')
-        return pd.DataFrame()
     
-    return df[['meeting_key','meeting_name','country_name', 'year']]
+
+    if spark_df.isEmpty():
+        print('No data for meetings selected')
+        return spark.createDataFrame([])
+    
+
+    
+    return spark_df.select('meeting_key','meeting_name','country_name', 'year')
 
 
 def get_sessions_year_list(session_type):

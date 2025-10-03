@@ -3,19 +3,16 @@ F1 data pipeline
 My goal for this project is to get used to using an api and pulling, cleaning, transforming data, and loading it into a postgres database. 
 
 Plans:
-- load data in through the F1 api
-- clean the data
-- tansform the data to a useable format to be able to perform analytics
-- load data into a postgres database
+- Pull data from OpenF1 API
+- use pySpark to put into AWS S3 
+- implement multi hop architecture (bronze, silver, gold)
+- clean data and move to silver
+- aggregate and move to gold
+- use a tool for automation (probably airflow)
+- monitor using prometheous and grafana
 
 
-Features:
-- Pull data from the openF1 api
-- Use pandas to take the data and put it into dataFrames
-- Do some data cleaning/processing (selecting columns we care about, dealing with null values, etc.)
-- Creating a connection to our Postgres database using docker and sqlalchemy
-- Create our tables in our database
-- Load the tables from our dataFrames
+
 
 
 

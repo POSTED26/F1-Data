@@ -10,7 +10,11 @@ import data_loader
 import db_connector
 
 
-
+'''
+    TODO: Create Logging for ETL process
+    TODO: Create Error Handling for ETL process
+    TODO: Modify to use Spark where possible
+'''
 
 
 def main():
@@ -53,32 +57,19 @@ def main():
     
 
 
-def testingspark():
-    # Create Spark session
-    spark = SparkSession.builder \
-        .appName("SparkTest") \
-        .master("local[*]") \
-        .getOrCreate()
+def api_to_bronze_s3():
+    """
+        Use pySpark to store raw data in AWS S3 (bronze layer)
+    """
+    spark = SparkSession.builder.appName("F1 Data to S3").getOrCreate()
 
-    # Sample data
-    data = ["hello world", "hello spark", "spark is fast"]
+    meeting_df = data_extracter.get_race_list()
 
-    # Create RDD
-    rdd = spark.sparkContext.parallelize(data)
+    print(meeting_df.show())
 
-    # Word count
-    word_counts = rdd.flatMap(lambda line: line.split()) \
-                    .map(lambda word: (word, 1)) \
-                    .reduceByKey(lambda a, b: a + b)
-
-    # Print results
-    for word, count in word_counts.collect():
-        print(f"{word}: {count}")
-
-    spark.stop()
 
 if __name__ == "__main__":
     #main()
-    testingspark()
+    api_to_bronze_s3()
 
 
