@@ -1,6 +1,7 @@
 #import pandas as pd
 from pyspark.sql import SparkSession
 from urllib.request import urlopen
+import requests
 
 from dotenv import load_dotenv
 import os
@@ -67,33 +68,20 @@ def main():
 
 def api_to_bronze_s3():
     """
-        Use pySpark to store raw data in AWS S3 (bronze layer)
+        Use boto to store raw data in AWS S3 (bronze layer)
     """
-    spark = SparkSession.builder \
-        .appName("APItoS3").getOrCreate()
-    #   .config("spark.hadoop.fs.s3a.access.key", AWS_ACCESS_KEY) \
-    #   .config("spark.hadoop.fs.s3a.secret.key", AWS_SECRET_KEY) \
-    #   .config("spark.hadoop.fs.s3a.endpoint", "s3.amazonaws.com") \
-    #   .getOrCreate()
+
     
+    #meeting_df = data_extracter.get_race_list()
+    response = requests.get('https://api.openf1.org/v1/meetings')
+    response.raise_for_status()
+    data = response.json()
+    print(data)
+    #print(meeting_df.head())
 
 
 
-
-    spark._jsc.hadoopConfiguration().set("fs.s3a.connection.timeout", "60000")  # 60s
-    spark._jsc.hadoopConfiguration().set("fs.s3a.connection.establish.timeout", "60000")
-    spark._jsc.hadoopConfiguration().set("fs.s3a.retry.interval", "1000")
-    spark._jsc.hadoopConfiguration().set("fs.s3a.retry.limit", "10")
-    spark._jsc.hadoopConfiguration().set("fs.s3a.access.key", AWS_ACCESS_KEY)
-    spark._jsc.hadoopConfiguration().set("fs.s3a.secret.key", AWS_SECRET_KEY)
-    spark._jsc.hadoopConfiguration().set("fs.s3a.endpoint", "s3.amazonaws.com")
-    
-    meeting_df = data_extracter.get_race_list()
-
-    #print(meeting_df.show())
-    #meeting_df.repartition(2)
-
-    meeting_df.coalesce(1).write.mode('overwrite').json(S3_RAW_BRONZE_PATH + 'meetings/')
+    #meeting_df.coalesce(1).write.mode('overwrite').json(S3_RAW_BRONZE_PATH + 'meetings/')
 
 
 if __name__ == "__main__":

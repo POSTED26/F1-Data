@@ -22,22 +22,24 @@ def get_data(endpoint, params=None):
         params (dict): optional, drill down more specifics for getting data
 
     Rreturn:
-        spark dataframe: returns a data frame for easy clean and manipulation 
-        spark session: returns spark session for further use
+        pandas dataframe: returns a data frame for easy clean and manipulation 
+        
     """
     if params is None:
         params = {}
 
-    spark = SparkSession.builder.appName("pull_data").getOrCreate()
+    #spark = SparkSession.builder.appName("pull_data").getOrCreate()
 
     url = f"{BASE_URL}{endpoint}"
     full_url = requests.Request('GET', url, params=params).prepare().url
     response = requests.get(full_url)
     response.raise_for_status()
     data = response.json()
-    spark = SparkSession.builder.appName("pull_data").getOrCreate()
-    df = spark.createDataFrame(data) 
-    return df, spark
+    print(data)
+    #spark = SparkSession.builder.appName("pull_data").getOrCreate()
+    #df = spark.createDataFrame(data) 
+    df = pd.DataFrame(data)
+    return df
 
 
 # use get_data to pull what we want
@@ -50,17 +52,17 @@ def get_race_list():
     Return:
         spark DataFrame: returns data fram of all races in year provided
     """
-    spark_df, spark = get_data("meetings")
+    df = get_data("meetings")
 
     
 
-    if spark_df.isEmpty():
+    if df.empty():
         print('No data for meetings selected')
-        return spark.createDataFrame([])
+        return pd.DataFrame()
     
 
     
-    return spark_df.select('meeting_key','meeting_name','country_name', 'year')
+    return df[('meeting_key','meeting_name','country_name', 'year')]
 
 
 def get_sessions_year_list(session_type):
