@@ -1,7 +1,7 @@
 pandas
 requests
-dotenv
-psycopg2
+python-dotenv
+psycopg2-binary
 SQLAlchemy
 boto3
 pyspark

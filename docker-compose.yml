@@ -13,36 +13,90 @@ services:
       - "${HOST_PORT}:5432"
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
+#version: '3'
 
-  
 
   spark-master:
-    build: .
-    image: spark-s3-image
+    image: spark-image 
     container_name: spark-master
-    command: >
-      bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.master.Master"
-    environment:
-      - SPARK_MODE=master
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
+    entrypoint: ['./entrypoint.sh', 'master']
+    build:
+      context: ./data-processing-spark/1-lab-setup/containers/spark
+      dockerfile: Dockerfile 
     ports:
-      - "7077:7077"   # Spark master port
-      - "8080:8080"   # Spark master web UI
-
-  spark-worker:
-    image: spark-s3-image
-    container_name: spark-worker
-    command: >
-      bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077"
+      - "4040:4040"
+      - "9090:8080"
+      - "7077:7077"
+      - "3000:3000"
+    volumes:
+      - ./capstone:/opt/spark/work-dir/capstone
+      - ./data-processing-spark:/opt/spark/work-dir/data-processing-spark
+      - spark-logs:/opt/spark/spark-events
+      - tpch-data:/opt/spark/tpch-dbgen
     environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
+      UPSTREAM_DRIVERNAME: postgresql
+      UPSTREAM_HOST: upstream
+      UPSTREAM_PORT: '5432'
+      UPSTREAM_USERNAME: sdeuser
+      UPSTREAM_PASSWORD: sdepassword
+      UPSTREAM_DATABASE: upstreamdb
+    env_file:
+      - .env.spark
+  
+  spark-history-server:
+    container_name: spark-history
+    image: spark-image
+    entrypoint: ['./entrypoint.sh', 'history']
     depends_on:
       - spark-master
+    env_file:
+      - .env.spark
+    volumes:
+      - spark-logs:/opt/spark/spark-events
     ports:
-      - "8081:8081"   # Spark worker web UI
+      - '18080:18080'
+  
+  spark-worker:
+    image: spark-image
+    entrypoint: ['./entrypoint.sh', 'worker']
+    volumes:
+      - ./capstone:/opt/spark/work-dir/capstone
+      - ./data-processing-spark:/opt/spark/work-dir/data-processing-spark
+      - spark-logs:/opt/spark/spark-events
+      - tpch-data:/opt/spark/tpch-dbgen
+    env_file:
+      - .env.spark
+    environment:
+      UPSTREAM_DRIVERNAME: postgresql
+      UPSTREAM_HOST: upstream
+      UPSTREAM_PORT: '5432'
+      UPSTREAM_USERNAME: sdeuser
+      UPSTREAM_PASSWORD: sdepassword
+      UPSTREAM_DATABASE: upstreamdb
+ 
+  minio:
+    image: 'minio/minio:latest'
+    hostname: minio
+    container_name: minio
+    ports:
+      - '9000:9000'  
+      - '9001:9001'
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server --console-address ":9001" /data
+
+
+
+  createbuckets:
+    image: minio/mc:latest
+    container_name: createbuckets
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 minio minio123; /usr/bin/mc rm -r --force myminio/tpch; /usr/bin/mc mb myminio/tpch; /usr/bin/mc policy download myminio/tpch; /usr/bin/mc rm -r --force myminio/rainforest; /usr/bin/mc mb myminio/rainforest; /usr/bin/mc policy download myminio/rainforest; exit 0; "
+
+
+volumes:
+  spark-logs:
+  tpch-data:
