@@ -35,7 +35,7 @@ def get_data(endpoint, params=None):
     response = requests.get(full_url)
     response.raise_for_status()
     data = response.json()
-    print(data)
+    #print(data)
     #spark = SparkSession.builder.appName("pull_data").getOrCreate()
     #df = spark.createDataFrame(data) 
     df = pd.DataFrame(data)
@@ -56,13 +56,13 @@ def get_race_list():
 
     
 
-    if df.empty():
+    if df.empty:
         print('No data for meetings selected')
         return pd.DataFrame()
     
 
     
-    return df[('meeting_key','meeting_name','country_name', 'year')]
+    return df[['meeting_key','meeting_name','country_name', 'year']]
 
 
 def get_sessions_year_list(session_type):

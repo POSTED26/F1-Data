@@ -2,6 +2,10 @@
 from pyspark.sql import SparkSession
 from urllib.request import urlopen
 import requests
+import json
+import boto3
+from botocore.exceptions import NoCredentialsError
+import re
 
 from dotenv import load_dotenv
 import os
@@ -64,6 +68,46 @@ def main():
     loader.load_table(pos_df, 'session_results', db)
     loader.load_table(driver_cummulative_df, 'driver_rolling_stats', db)
     
+def load_file_to_s3(bucket, file_name):
+    """
+        Use boto to send file to S3
+    """
+
+    s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY,
+                      aws_secret_access_key=AWS_SECRET_KEY,
+                      region_name=AWS_REGEION)
+    bucket, key = parse_s3_uri(bucket)
+    key = key + file_name
+    try:
+        s3.upload_file(file_name, bucket, key)
+        print("Upload Successful")
+        
+    except NoCredentialsError:
+        print("Credentials not available")
+        
+    
+def parse_s3_uri(s3_uri: str):
+    """
+    Parse an S3 URI and return the bucket name and key.
+
+    Args:
+        s3_uri (str): S3 URI like 's3://my-bucket/path/to/object.json'
+
+    Returns:
+        tuple: (bucket_name, key)
+
+    Raises:
+        ValueError: If the URI is not a valid S3 path
+    """
+    
+
+    pattern = r'^s3a://([^/]+)/(.+)$'
+    match = re.match(pattern, s3_uri)
+    if not match:
+        raise ValueError(f"Invalid S3 URI: {s3_uri}")
+    
+    return match.group(1), match.group(2)
+
 
 
 def api_to_bronze_s3():
@@ -71,12 +115,33 @@ def api_to_bronze_s3():
         Use boto to store raw data in AWS S3 (bronze layer)
     """
 
+    endpoints = ['meetings', 'sessions', 'drivers', 'positions']
+    calls = [data_extracter.get_race_list(),
+                data_extracter.get_sessions_year_list('Race'),
+                data_extracter.get_drivers(),
+                data_extracter.get_session_result()]
+
+
+    for i in range(len(endpoints)):
+        df = calls[i]
+        file_path = f"{endpoints[i]}.json"
+        df.to_json(file_path, orient='records', lines=True)
+        bucket = S3_RAW_BRONZE_PATH + f'{endpoints[i]}/'
+        load_file_to_s3(bucket, file_path)
     
     #meeting_df = data_extracter.get_race_list()
-    response = requests.get('https://api.openf1.org/v1/meetings')
-    response.raise_for_status()
-    data = response.json()
-    print(data)
+    #meeting_json = meeting_df.to_json('meetings.json', orient='records', lines=True)
+    #response = requests.get('https://api.openf1.org/v1/meetings')
+    #response.raise_for_status()
+    #data = response.json()
+
+    #file_path = "meetings.json"
+    #with open(file_path, 'w') as json_file:
+    #    json.dump(meeting_df.to_json(), json_file, indent=4)
+    
+    #bucket = S3_RAW_BRONZE_PATH + 'meetings/'
+    #load_file_to_s3(bucket, file_path)
+    
     #print(meeting_df.head())
 
 
