@@ -78,6 +78,7 @@ def load_file_to_s3(bucket, file_name):
                       region_name=AWS_REGEION)
     bucket, key = parse_s3_uri(bucket)
     key = key + file_name
+    print(key)
     try:
         s3.upload_file(file_name, bucket, key)
         print("Upload Successful")
@@ -115,6 +116,8 @@ def api_to_bronze_s3():
         Use boto to store raw data in AWS S3 (bronze layer)
     """
 
+    #TODO: get full json in as raw then filter down columns in transition to silver with other things like handling nulls and deduping
+    
     endpoints = ['meetings', 'sessions', 'drivers', 'positions']
     calls = [data_extracter.get_race_list(),
                 data_extracter.get_sessions_year_list('Race'),
@@ -125,7 +128,9 @@ def api_to_bronze_s3():
     for i in range(len(endpoints)):
         df = calls[i]
         file_path = f"{endpoints[i]}.json"
-        df.to_json(file_path, orient='records', lines=True)
+        with open(file_path, 'w') as json_file:
+            json.dump(df, json_file, indent=4)
+        #df.to_json(file_path, orient='records', lines=True)
         bucket = S3_RAW_BRONZE_PATH + f'{endpoints[i]}/'
         load_file_to_s3(bucket, file_path)
     

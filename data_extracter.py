@@ -38,8 +38,8 @@ def get_data(endpoint, params=None):
     #print(data)
     #spark = SparkSession.builder.appName("pull_data").getOrCreate()
     #df = spark.createDataFrame(data) 
-    df = pd.DataFrame(data)
-    return df
+    #df = pd.DataFrame(data)
+    return data
 
 
 # use get_data to pull what we want
@@ -56,24 +56,24 @@ def get_race_list():
 
     
 
-    if df.empty:
-        print('No data for meetings selected')
-        return pd.DataFrame()
+    #if df.empty:
+    #    print('No data for meetings selected')
+    #    return pd.DataFrame()
     
 
     
-    return df[['meeting_key','meeting_name','country_name', 'year']]
+    return df # df[['meeting_key','meeting_name','country_name', 'year']]
 
 
 def get_sessions_year_list(session_type):
 
     df = get_data('sessions', {'session_type': session_type})
 
-    if df.empty:
-        print('No data for sessions list you selected')
-        return pd.DataFrame()
+    #if df.empty:
+    #    print('No data for sessions list you selected')
+    #    return pd.DataFrame()
     
-    return df[['meeting_key', 'session_key', 'session_name', 'session_type', 'country_name', 'year']]
+    return df#[['meeting_key', 'session_key', 'session_name', 'session_type', 'country_name', 'year']]
 
 
     
@@ -81,40 +81,40 @@ def get_session(session_key):
     
     df = get_data('sessions', {'session_key': session_key})
 
-    if df.empty:
-        print('No data for session')
-        return pd.DataFrame()
+    #if df.empty:
+    #    print('No data for session')
+    #    return pd.DataFrame()
     
-    return df[['session_key', 'session_name', 'session_type', 'country_name', 'year']]
+    return df#[['session_key', 'session_name', 'session_type', 'country_name', 'year']]
     
 def get_session_result(num_of_pos=20):
 
     df = get_data('session_result', {'position<':num_of_pos})
-    if df.empty:
-        print('No date for session result')
-        return pd.DataFrame()
-    df = df.sort_values(by=['position'])
-    return df[['session_key', 'driver_number', 'position']]
+    #if df.empty:
+    #    print('No date for session result')
+    #    return pd.DataFrame()
+    #df = df.sort_values(by=['position'])
+    return df#[['session_key', 'driver_number', 'position']]
 
 def get_driver(driver_number, session_key):
     """
         Get info on a single driver from a session
     """
     df = get_data('drivers', {'driver_number': driver_number, 'session_key': session_key})
-    if df.empty:
-        print('No driver data for selected number')
-        return pd.DataFrame()
-    return df[['driver_number', 'full_name', 'team_name']]
+    #if df.empty:
+    #    print('No driver data for selected number')
+    #    return pd.DataFrame()
+    return df#[['driver_number', 'full_name', 'team_name']]
 
 def get_drivers():
     """
         Get list of drivers from a session
     """
     df = get_data('drivers')
-    if df.empty:
-        print('No driver data for selected number')
-        return pd.DataFrame()
-    return df[['driver_number', 'full_name', 'country_code', 'team_name', 'meeting_key', 'session_key']]
+    #if df.empty:
+    #    print('No driver data for selected number')
+    #    return pd.DataFrame()
+    return df#[['driver_number', 'full_name', 'country_code', 'team_name', 'meeting_key', 'session_key']]
 
 def get_laps(session_key):
     """
