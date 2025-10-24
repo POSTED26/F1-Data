@@ -17,5 +17,5 @@ Currently working on:
 - clean up projects folders, get rid of files we dont need and structure files within folders
 - work on some data aggrigations for gold level. Season driver stats and race results stats.
 
-![alt text](image.png)
+![alt text](Documentation/image.png)
 
