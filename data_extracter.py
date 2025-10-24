@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 import os
 
 '''
-    TODO: finish moving to pyspark dataframes
+    TODO: Clean up functions and make consistent accross all functions
+    TODO: Write better documentation for functions
+    TODO: write tests for functions
 '''
 
 load_dotenv()
@@ -22,22 +24,24 @@ def get_data(endpoint, params=None):
         params (dict): optional, drill down more specifics for getting data
 
     Rreturn:
-        spark dataframe: returns a data frame for easy clean and manipulation 
-        spark session: returns spark session for further use
+        pandas dataframe: returns a data frame for easy clean and manipulation 
+        
     """
     if params is None:
         params = {}
 
-    spark = SparkSession.builder.appName("pull_data").getOrCreate()
+    #spark = SparkSession.builder.appName("pull_data").getOrCreate()
 
     url = f"{BASE_URL}{endpoint}"
     full_url = requests.Request('GET', url, params=params).prepare().url
     response = requests.get(full_url)
     response.raise_for_status()
     data = response.json()
-    spark = SparkSession.builder.appName("pull_data").getOrCreate()
-    df = spark.createDataFrame(data) 
-    return df, spark
+    #print(data)
+    #spark = SparkSession.builder.appName("pull_data").getOrCreate()
+    #df = spark.createDataFrame(data) 
+    #df = pd.DataFrame(data)
+    return data
 
 
 # use get_data to pull what we want
@@ -50,28 +54,28 @@ def get_race_list():
     Return:
         spark DataFrame: returns data fram of all races in year provided
     """
-    spark_df, spark = get_data("meetings")
+    df = get_data("meetings")
 
     
 
-    if spark_df.isEmpty():
-        print('No data for meetings selected')
-        return spark.createDataFrame([])
+    #if df.empty:
+    #    print('No data for meetings selected')
+    #    return pd.DataFrame()
     
 
     
-    return spark_df.select('meeting_key','meeting_name','country_name', 'year')
+    return df # df[['meeting_key','meeting_name','country_name', 'year']]
 
 
 def get_sessions_year_list(session_type):
 
     df = get_data('sessions', {'session_type': session_type})
 
-    if df.empty:
-        print('No data for sessions list you selected')
-        return pd.DataFrame()
+    #if df.empty:
+    #    print('No data for sessions list you selected')
+    #    return pd.DataFrame()
     
-    return df[['meeting_key', 'session_key', 'session_name', 'session_type', 'country_name', 'year']]
+    return df#[['meeting_key', 'session_key', 'session_name', 'session_type', 'country_name', 'year']]
 
 
     
@@ -79,40 +83,40 @@ def get_session(session_key):
     
     df = get_data('sessions', {'session_key': session_key})
 
-    if df.empty:
-        print('No data for session')
-        return pd.DataFrame()
+    #if df.empty:
+    #    print('No data for session')
+    #    return pd.DataFrame()
     
-    return df[['session_key', 'session_name', 'session_type', 'country_name', 'year']]
+    return df#[['session_key', 'session_name', 'session_type', 'country_name', 'year']]
     
 def get_session_result(num_of_pos=20):
 
     df = get_data('session_result', {'position<':num_of_pos})
-    if df.empty:
-        print('No date for session result')
-        return pd.DataFrame()
-    df = df.sort_values(by=['position'])
-    return df[['session_key', 'driver_number', 'position']]
+    #if df.empty:
+    #    print('No date for session result')
+    #    return pd.DataFrame()
+    #df = df.sort_values(by=['position'])
+    return df#[['session_key', 'driver_number', 'position']]
 
 def get_driver(driver_number, session_key):
     """
         Get info on a single driver from a session
     """
     df = get_data('drivers', {'driver_number': driver_number, 'session_key': session_key})
-    if df.empty:
-        print('No driver data for selected number')
-        return pd.DataFrame()
-    return df[['driver_number', 'full_name', 'team_name']]
+    #if df.empty:
+    #    print('No driver data for selected number')
+    #    return pd.DataFrame()
+    return df#[['driver_number', 'full_name', 'team_name']]
 
 def get_drivers():
     """
         Get list of drivers from a session
     """
     df = get_data('drivers')
-    if df.empty:
-        print('No driver data for selected number')
-        return pd.DataFrame()
-    return df[['driver_number', 'full_name', 'country_code', 'team_name', 'meeting_key', 'session_key']]
+    #if df.empty:
+    #    print('No driver data for selected number')
+    #    return pd.DataFrame()
+    return df#[['driver_number', 'full_name', 'country_code', 'team_name', 'meeting_key', 'session_key']]
 
 def get_laps(session_key):
     """
