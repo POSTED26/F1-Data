@@ -12,7 +12,10 @@ Plans:
 - monitor using prometheous and grafana (maybe able to do within s3?)
 
 
-
+Currently working on:
+- finishing out bronze to silver transforms with glue job and then automate with lambda function
+- clean up projects folders, get rid of files we dont need and structure files within folders
+- work on some data aggrigations for gold level. Season driver stats and race results stats.
 
 ![alt text](image.png)
 

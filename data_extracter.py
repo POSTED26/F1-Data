@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 import os
 
 '''
-    TODO: finish moving to pyspark dataframes
+    TODO: Clean up functions and make consistent accross all functions
+    TODO: Write better documentation for functions
+    TODO: write tests for functions
 '''
 
 load_dotenv()
