@@ -13,6 +13,7 @@ Plans:
 
 
 Currently working on:
+- Finish Meetings and sessions cleaning
 - Investigate cloudwatch to do some monitoring
 - Work on bronze to silver data cleaning
 - Investigate pyDeequ for data validation
