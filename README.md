@@ -13,9 +13,12 @@ Plans:
 
 
 Currently working on:
-- finishing out bronze to silver transforms with glue job and then automate with lambda function
-- clean up projects folders, get rid of files we dont need and structure files within folders
+- Investigate cloudwatch to do some monitoring
+- Work on bronze to silver data cleaning
+- Investigate pyDeequ for data validation
+- Think about drivers table and how much duplication there is. SCD 2 might not be great because data isnt really slowly changing if it changes every week. 
 - work on some data aggrigations for gold level. Season driver stats and race results stats.
+- which tables to join to get some aggrigations. Think about data modeling with the tables as they are in silver. 
 
 ![alt text](Documentation/image.png)
 
