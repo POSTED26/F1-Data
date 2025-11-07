@@ -67,9 +67,9 @@ def get_race_list():
     return df # df[['meeting_key','meeting_name','country_name', 'year']]
 
 
-def get_sessions_year_list(session_type):
+def get_sessions_year_list():
 
-    df = get_data('sessions', {'session_type': session_type})
+    df = get_data('sessions')
 
     #if df.empty:
     #    print('No data for sessions list you selected')

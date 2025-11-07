@@ -81,7 +81,7 @@ def api_to_bronze_s3():
     
     endpoints = ['meetings', 'sessions', 'drivers', 'positions']
     calls = [data_extracter.get_race_list(),
-                data_extracter.get_sessions_year_list('Race'),
+                data_extracter.get_sessions_year_list(),
                 data_extracter.get_drivers(),
                 data_extracter.get_session_result()]
 
