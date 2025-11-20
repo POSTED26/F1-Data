@@ -13,9 +13,7 @@ Plans:
 
 
 Currently working on:
-- Finish Meetings and sessions cleaning
 - Investigate cloudwatch to do some monitoring
-- Work on bronze to silver data cleaning
 - Investigate pyDeequ for data validation
 - Think about drivers table and how much duplication there is. SCD 2 might not be great because data isnt really slowly changing if it changes every week. 
 - work on some data aggrigations for gold level. Season driver stats and race results stats.
