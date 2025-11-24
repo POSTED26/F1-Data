@@ -1,0 +1,57 @@
+
+
+# CI/CD pipeline configuration for GitHub Actions
+
+name: F1-Data CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # test code
+  test:
+
+    name: Run Tests
+
+
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: Checkout repository
+
+        uses: actions/checkout@v4
+
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          echo "Installing dependencies..."
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          echo "Dependencies installed."
+      
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          pytest Tests/
+          echo "Tests completed."
+
+      - name: Success Message
+        # see if that works
+        if: success()
+        run: echo "All tests passed successfully!"
+
+
+
+
+    # have build, artifact and deploy jobs later
+          
