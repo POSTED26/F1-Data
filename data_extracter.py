@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-from pyspark.sql import SparkSession
+#from pyspark.sql import SparkSession
 
 from dotenv import load_dotenv
 import os
